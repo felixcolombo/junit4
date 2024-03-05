@@ -1,5 +1,6 @@
 package br.ce.wcaquino.servicos;
 
+import br.ce.wcaquino.builders.UsuarioBuilder;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
@@ -7,6 +8,7 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.matchers.DataDiferencaDiasMatcher;
 import br.ce.wcaquino.utils.DataUtils;
+import buildermaster.BuilderMaster;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -20,11 +22,14 @@ import org.junit.rules.ExpectedException;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static br.ce.wcaquino.matchers.MatchersProprios.caiEm;
+import static br.ce.wcaquino.builders.FilmeBuilder.filme1;
+import static br.ce.wcaquino.builders.FilmeBuilder.umFilmeSemEstoque;
+import static br.ce.wcaquino.builders.UsuarioBuilder.usuario1;
 import static br.ce.wcaquino.matchers.MatchersProprios.caiNumaSegunda;
 import static br.ce.wcaquino.matchers.MatchersProprios.isTodayWithDifferenceOfDays;
 import static br.ce.wcaquino.matchers.MatchersProprios.itsToday;
@@ -289,6 +294,64 @@ public class LocacaoServiceTest {
         errorCollector.checkThat(locacao.getDataLocacao(), itsToday());
 //        errorCollector.checkThat(DataUtils.isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
         errorCollector.checkThat(locacao.getDataRetorno(), isTodayWithDifferenceOfDays(1));
+    }
 
+    //Utilizando Builders
+    @Test
+    public void should_ReturnCorrectValues_When_NewMovieWasRented_Builder() throws Exception {
+        Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+
+        //given
+        Usuario usuario = usuario1().agora();
+        List<Filme> filmesBuilder = Arrays.asList(filme1().agora());
+
+        //when
+        Locacao locacao = locacaoService.alugarFilme(usuario, filmesBuilder);
+
+        //then
+        errorCollector.checkThat(locacao.getValor(), is(equalTo(5.0)));
+        errorCollector.checkThat(locacao.getDataLocacao(), itsToday());
+        errorCollector.checkThat(locacao.getDataRetorno(), isTodayWithDifferenceOfDays(1));
+    }
+
+    @Test(expected = FilmeSemEstoqueException.class)
+    public void should_ReturnThrows_When_FilmeSemEstoque_Builder() throws Exception {
+        //given
+        Usuario usuario = usuario1().agora();
+        List<Filme> filmesBuilder = Arrays.asList(filme1().semEstoque().agora());
+
+        //when
+        locacaoService.alugarFilme(usuario, filmesBuilder);
+    }
+
+    @Test
+    public void should_ReturnCorrectValues_When_NewMovieWasRented_Builder_ALterandoValorFilme() throws Exception {
+        Assume.assumeFalse(DataUtils.verificarDiaSemana(new Date(), Calendar.SATURDAY));
+
+        //given
+        Usuario usuario = usuario1().agora();
+        List<Filme> filmesBuilder = Arrays.asList(filme1().comValor(25.0).agora());
+
+        //when
+        Locacao locacao = locacaoService.alugarFilme(usuario, filmesBuilder);
+
+        //then
+        errorCollector.checkThat(locacao.getValor(), is(equalTo(25.0)));
+        errorCollector.checkThat(locacao.getDataLocacao(), itsToday());
+        errorCollector.checkThat(locacao.getDataRetorno(), isTodayWithDifferenceOfDays(1));
+    }
+
+    @Test(expected = FilmeSemEstoqueException.class)
+    public void should_ReturnThrows_When_FilmeSemEstoque_BuilderComBuilderSemEsqoque() throws Exception {
+        //given
+        Usuario usuario = usuario1().agora();
+        List<Filme> filmesBuilder = Arrays.asList(umFilmeSemEstoque().agora());
+
+        //when
+        locacaoService.alugarFilme(usuario, filmesBuilder);
+    }
+
+    public static void main(String[] args) {
+        new BuilderMaster().gerarCodigoClasse(Locacao.class);
     }
 }
