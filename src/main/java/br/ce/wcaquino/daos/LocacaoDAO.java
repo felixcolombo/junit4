@@ -2,7 +2,7 @@ package br.ce.wcaquino.daos;
 
 import br.ce.wcaquino.entidades.Locacao;
 
-public interface LocacaoDAO {
+public class LocacaoDAO {
 
-    void salvar(Locacao locacao);
+    public void salvar(Locacao locacao) {};
 }

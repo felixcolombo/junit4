@@ -1,7 +1,6 @@
 package br.ce.wcaquino.servicos;
 
 import br.ce.wcaquino.daos.LocacaoDAO;
-import br.ce.wcaquino.daos.LocacaoDAOFake;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
@@ -19,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +67,7 @@ public class LocacaoServiceTest {
     @BeforeClass
     public static void setupClass() {
         locacaoService = new LocacaoService();
-        LocacaoDAO locacaoDAO = new LocacaoDAOFake();
+        LocacaoDAO locacaoDAO = Mockito.mock(LocacaoDAO.class);
         locacaoService.setLocacaoDAO(locacaoDAO);
 
         System.out.println("Before Class");
