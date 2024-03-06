@@ -1,12 +1,12 @@
 package br.ce.wcaquino.servicos;
 
-import br.ce.wcaquino.builders.UsuarioBuilder;
+import br.ce.wcaquino.daos.LocacaoDAO;
+import br.ce.wcaquino.daos.LocacaoDAOFake;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
-import br.ce.wcaquino.matchers.DataDiferencaDiasMatcher;
 import br.ce.wcaquino.utils.DataUtils;
 import buildermaster.BuilderMaster;
 import org.junit.After;
@@ -20,7 +20,6 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -68,6 +67,9 @@ public class LocacaoServiceTest {
     @BeforeClass
     public static void setupClass() {
         locacaoService = new LocacaoService();
+        LocacaoDAO locacaoDAO = new LocacaoDAOFake();
+        locacaoService.setLocacaoDAO(locacaoDAO);
+
         System.out.println("Before Class");
     }
 
